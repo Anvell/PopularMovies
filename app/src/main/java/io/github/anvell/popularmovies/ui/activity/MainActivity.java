@@ -3,6 +3,8 @@ package io.github.anvell.popularmovies.ui.activity;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -21,6 +23,7 @@ import butterknife.ButterKnife;
 import io.github.anvell.popularmovies.R;
 import io.github.anvell.popularmovies.presentation.presenter.MainPresenter;
 import io.github.anvell.popularmovies.presentation.view.MainView;
+import io.github.anvell.popularmovies.ui.adapter.MoviePosterAdapter;
 
 public class MainActivity extends MvpAppCompatActivity
         implements MainView, NavigationView.OnNavigationItemSelectedListener {
@@ -31,6 +34,7 @@ public class MainActivity extends MvpAppCompatActivity
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
     @BindView(R.id.nav_view) NavigationView navigationView;
+    @BindView(R.id.movie_grid) RecyclerView movieGridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +48,10 @@ public class MainActivity extends MvpAppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
         navigationView.setNavigationItemSelectedListener(this);
+
+        movieGridView.setLayoutManager(new GridLayoutManager(this, 4));
+        movieGridView.setAdapter(new MoviePosterAdapter());
     }
 
     @Override
