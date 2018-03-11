@@ -27,6 +27,7 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         android.defaultConfig.vectorDrawables.useSupportLibrary = true
 
+        buildConfigField "String", "MOVIEDB_API_KEY", movieDbApiKey
         resValue "string", "MOVIEDB_API_KEY", movieDbApiKey
     }
     buildTypes {
@@ -58,5 +59,8 @@ dependencies {
     implementation 'com.arello-mobile:moxy-app-compat:1.5.3'
     implementation 'com.jakewharton:butterknife:8.8.1'
     implementation 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.google.code.gson:gson:2.8.2'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }

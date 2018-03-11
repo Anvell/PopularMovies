@@ -21,15 +21,18 @@ import com.arellomobile.mvp.presenter.InjectPresenter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.anvell.popularmovies.R;
+import io.github.anvell.popularmovies.models.MovieDataSource;
 import io.github.anvell.popularmovies.presentation.presenter.MainPresenter;
 import io.github.anvell.popularmovies.presentation.view.MainView;
-import io.github.anvell.popularmovies.ui.adapter.MoviePosterAdapter;
+import io.github.anvell.popularmovies.ui.adapter.MovieAdapter;
 
 public class MainActivity extends MvpAppCompatActivity
         implements MainView, NavigationView.OnNavigationItemSelectedListener {
 
     @InjectPresenter
     MainPresenter mMainPresenter;
+
+    private MovieAdapter mAdapter;
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
@@ -42,6 +45,7 @@ public class MainActivity extends MvpAppCompatActivity
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        toolbar.setTitle(R.string.sort_popular);
         setSupportActionBar(toolbar);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -50,8 +54,13 @@ public class MainActivity extends MvpAppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
-        movieGridView.setLayoutManager(new GridLayoutManager(this, 4));
-        movieGridView.setAdapter(new MoviePosterAdapter());
+        movieGridView.setLayoutManager(new GridLayoutManager(this, 2));
+
+        mAdapter = new MovieAdapter(mMainPresenter.getMovieData());
+        movieGridView.setAdapter(mAdapter);
+
+        if(savedInstanceState == null)
+            mMainPresenter.sortIdChanged(R.id.nav_popular);
     }
 
     @Override
@@ -74,12 +83,11 @@ public class MainActivity extends MvpAppCompatActivity
         return item.getItemId() == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
-
         drawer.closeDrawer(GravityCompat.START);
+        mMainPresenter.sortIdChanged(id);
         return true;
     }
 
@@ -87,5 +95,24 @@ public class MainActivity extends MvpAppCompatActivity
     public void showMessage(int message) {
         Toast t = Toast.makeText(this, message, Toast.LENGTH_LONG);
         t.show();
+    }
+
+    @Override
+    public void notifyDataUpdated() {
+        mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onSortingChanged(int id) {
+        int strId;
+        switch (id) {
+            case R.id.nav_top_rated:
+                strId = R.string.sort_top_rated;
+                break;
+            default:
+                strId = R.string.sort_popular;
+                break;
+        }
+        toolbar.setTitle(strId);
     }
 }
