@@ -34,8 +34,8 @@ public class MovieDataSource {
             @Override
             public void onResponse(Call<MoviesResource> call, Response<MoviesResource> response) {
                 if(response.isSuccessful()) {
+                    mData.clear();
                     mData.addAll(response.body().results);
-//                    Log.d("MainActivity", "movies loaded from API");
                     onSuccess.run();
                 } else {
                     onFailure.run();

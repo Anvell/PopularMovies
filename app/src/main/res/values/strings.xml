@@ -8,4 +8,6 @@
     <string name="sort_popular">Popular movies</string>
     <string name="sort_top_rated">Top rated movies</string>
 
+    <string name="error_no_connection">Waiting internet connection...</string>
+
 </resources>

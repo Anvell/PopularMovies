@@ -5,6 +5,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,6 +14,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.arellomobile.mvp.MvpAppCompatActivity;
@@ -38,6 +41,7 @@ public class MainActivity extends MvpAppCompatActivity
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
     @BindView(R.id.nav_view) NavigationView navigationView;
     @BindView(R.id.movie_grid) RecyclerView movieGridView;
+    @BindView(R.id.pg_loading_movies) ProgressBar loadingBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +58,9 @@ public class MainActivity extends MvpAppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
-        movieGridView.setLayoutManager(new GridLayoutManager(this, 2));
+        configureMovieGrid();
 
-        mAdapter = new MovieAdapter(mMainPresenter.getMovieData());
-        movieGridView.setAdapter(mAdapter);
-
-        if(savedInstanceState == null)
+        if(savedInstanceState == null || mMainPresenter.getMovieData().isEmpty())
             mMainPresenter.sortIdChanged(R.id.nav_popular);
     }
 
@@ -99,6 +100,7 @@ public class MainActivity extends MvpAppCompatActivity
 
     @Override
     public void notifyDataUpdated() {
+        loadingBar.setVisibility(View.GONE);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -114,5 +116,20 @@ public class MainActivity extends MvpAppCompatActivity
                 break;
         }
         toolbar.setTitle(strId);
+    }
+
+    private void configureMovieGrid() {
+        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+        float width = (displayMetrics.widthPixels * 160) / displayMetrics.density;
+        float imageWidth = (342 * 160) / displayMetrics.density;
+
+        movieGridView.setLayoutManager(new GridLayoutManager(this, Math.round(width / imageWidth)));
+
+        mAdapter = new MovieAdapter(mMainPresenter.getMovieData());
+        movieGridView.setAdapter(mAdapter);
+
+        mAdapter.setOnItemClickListener((view, position) -> {
+            Toast.makeText(this, mMainPresenter.getMovieData().get(position).originalTitle + " was clicked!", Toast.LENGTH_SHORT).show();
+        });
     }
 }

@@ -6,9 +6,9 @@
 
     <ImageView
         android:id="@+id/movie_grid_image"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="2dp"
+        android:paddingBottom="5dp"
         tools:ignore="ContentDescription" />
 
 </LinearLayout>

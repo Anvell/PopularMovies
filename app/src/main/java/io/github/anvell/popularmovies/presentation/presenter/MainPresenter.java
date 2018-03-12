@@ -1,5 +1,7 @@
 package io.github.anvell.popularmovies.presentation.presenter;
 
+import android.os.Handler;
+
 import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
 
@@ -23,8 +25,8 @@ public class MainPresenter extends MvpPresenter<MainView> {
     }
 
     public void fetchMovieData(String sorting) {
-        mDataSource.clearMovieData();
-        mDataSource.fetchMovieData(sorting, () -> getViewState().notifyDataUpdated(), () -> {});
+        mDataSource.fetchMovieData(sorting, () -> getViewState().notifyDataUpdated(),
+            () -> new Handler().postDelayed(() -> fetchMovieData(sorting), 1000));
     }
 
     public void sortIdChanged(int id) {
