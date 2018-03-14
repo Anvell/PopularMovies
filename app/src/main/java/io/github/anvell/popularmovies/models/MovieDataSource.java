@@ -18,6 +18,7 @@ public class MovieDataSource {
 
     public static final String SORT_BY_POPULAR = "popular";
     public static final String SORT_BY_TOP_RATED = "top_rated";
+    public static final int DEFAULT_PAGE = 1;
 
     private MovieDbService mClient;
     private ArrayList<MovieItem> mData;
@@ -29,13 +30,18 @@ public class MovieDataSource {
         mLastPage = 1;
     }
 
-    public void fetchMovieData(String sorting, Runnable onSuccess, Runnable onFailure) {
+    public void fetchMovieData(String sorting, Runnable onSuccess, Runnable onFailure, boolean nextPage) {
         mClient.getMovies(sorting, BuildConfig.MOVIEDB_API_KEY, mLastPage).enqueue(new Callback<MoviesResource>() {
             @Override
             public void onResponse(Call<MoviesResource> call, Response<MoviesResource> response) {
                 if(response.isSuccessful()) {
-                    mData.clear();
+                    if(!nextPage) {
+                        clearMovieData();
+                        mLastPage = DEFAULT_PAGE;
+                    }
+
                     mData.addAll(response.body().results);
+                    mLastPage++;
                     onSuccess.run();
                 } else {
                     onFailure.run();

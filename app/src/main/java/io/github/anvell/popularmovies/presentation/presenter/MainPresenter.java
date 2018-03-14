@@ -19,14 +19,37 @@ public class MainPresenter extends MvpPresenter<MainView> {
 
     private MovieDataSource mDataSource;
     private int mCurrentSort;
+    private boolean mIsLoadingData;
 
     public MainPresenter() {
         mDataSource = new MovieDataSource();
     }
 
+    private String getSortingKey() {
+        return mCurrentSort == R.id.nav_top_rated?
+               MovieDataSource.SORT_BY_TOP_RATED : MovieDataSource.SORT_BY_POPULAR;
+    }
+
+    public void fetchMovieData() {
+        fetchMovieData(getSortingKey(), true);
+    }
+
     public void fetchMovieData(String sorting) {
-        mDataSource.fetchMovieData(sorting, () -> getViewState().notifyDataUpdated(),
-            () -> new Handler().postDelayed(() -> fetchMovieData(sorting), 1000));
+        fetchMovieData(sorting, false);
+    }
+
+    public void fetchMovieData(String sorting, boolean nextPage) {
+        mIsLoadingData = true;
+        int oldSize = getMovieData().size();
+
+        mDataSource.fetchMovieData(sorting, () -> {
+                if(!nextPage)
+                    getViewState().notifyDataUpdated();
+                else
+                    getViewState().notifyDataUpdated(oldSize, getMovieData().size() - oldSize);
+                mIsLoadingData = false;
+            },
+            () -> new Handler().postDelayed(() -> fetchMovieData(sorting), 3000), nextPage);
     }
 
     public void sortIdChanged(int id) {
@@ -37,6 +60,10 @@ public class MainPresenter extends MvpPresenter<MainView> {
             fetchMovieData(mCurrentSort == R.id.nav_top_rated?
                     MovieDataSource.SORT_BY_TOP_RATED : MovieDataSource.SORT_BY_POPULAR);
         }
+    }
+
+    public boolean isLoadingData() {
+        return mIsLoadingData;
     }
 
     public ArrayList<MovieItem> getMovieData() {

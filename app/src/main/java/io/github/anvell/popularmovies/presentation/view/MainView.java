@@ -7,5 +7,6 @@ public interface MainView extends MvpView {
     @StateStrategyType(OneExecutionStateStrategy.class)
     void showMessage(int message);
     void notifyDataUpdated();
+    void notifyDataUpdated(int insertPosition, int length);
     void onSortingChanged(int id);
 }

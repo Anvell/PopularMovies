@@ -23,6 +23,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     private ArrayList<MovieItem> mMovieItems;
     private Context mContext;
     private OnItemClickListener mListener;
+
     private final String BASE_PATH = "http://image.tmdb.org/t/p/w342";
 
     public void setOnItemClickListener(OnItemClickListener listener) {

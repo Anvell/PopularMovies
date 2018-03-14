@@ -1,11 +1,13 @@
 package io.github.anvell.popularmovies.ui.activity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -105,6 +107,11 @@ public class MainActivity extends MvpAppCompatActivity
     }
 
     @Override
+    public void notifyDataUpdated(int insertPosition, int length) {
+        mAdapter.notifyItemRangeInserted(insertPosition, length);
+    }
+
+    @Override
     public void onSortingChanged(int id) {
         int strId;
         switch (id) {
@@ -127,6 +134,18 @@ public class MainActivity extends MvpAppCompatActivity
 
         mAdapter = new MovieAdapter(mMainPresenter.getMovieData());
         movieGridView.setAdapter(mAdapter);
+
+        movieGridView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (!recyclerView.canScrollVertically(1) && !mMainPresenter.isLoadingData()) {
+                    mMainPresenter.fetchMovieData();
+                }
+            }
+        });
 
         mAdapter.setOnItemClickListener((view, position) -> {
             Toast.makeText(this, mMainPresenter.getMovieData().get(position).originalTitle + " was clicked!", Toast.LENGTH_SHORT).show();
