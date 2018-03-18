@@ -25,7 +25,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        android.defaultConfig.vectorDrawables.useSupportLibrary = true
+        vectorDrawables.useSupportLibrary = true
 
         buildConfigField "String", "MOVIEDB_API_KEY", movieDbApiKey
         resValue "string", "MOVIEDB_API_KEY", movieDbApiKey

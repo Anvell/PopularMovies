@@ -1,5 +1,6 @@
 package io.github.anvell.popularmovies.models;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -21,27 +22,18 @@ public class MovieDataSource {
     public static final int DEFAULT_PAGE = 1;
 
     private MovieDbService mClient;
-    private ArrayList<MovieItem> mData;
-    private int mLastPage;
 
     public MovieDataSource() {
         mClient = ApiClient.getClient();
-        mData = new ArrayList<>();
-        mLastPage = 1;
     }
 
-    public void fetchMovieData(String sorting, Runnable onSuccess, Runnable onFailure, boolean nextPage) {
-        mClient.getMovies(sorting, BuildConfig.MOVIEDB_API_KEY, mLastPage).enqueue(new Callback<MoviesResource>() {
+    public void fetchMovieData(ArrayList<MovieItem> data, String sorting, int page, Runnable onSuccess, Runnable onFailure) {
+        mClient.getMovies(sorting, BuildConfig.MOVIEDB_API_KEY, page).enqueue(new Callback<MoviesResource>() {
             @Override
-            public void onResponse(Call<MoviesResource> call, Response<MoviesResource> response) {
-                if(response.isSuccessful()) {
-                    if(!nextPage) {
-                        clearMovieData();
-                        mLastPage = DEFAULT_PAGE;
-                    }
-
-                    mData.addAll(response.body().results);
-                    mLastPage++;
+            public void onResponse(@NonNull Call<MoviesResource> call, @NonNull Response<MoviesResource> response) {
+                if(response.isSuccessful() && response.body() != null) {
+                    //noinspection ConstantConditions
+                    data.addAll(response.body().results);
                     onSuccess.run();
                 } else {
                     onFailure.run();
@@ -49,18 +41,9 @@ public class MovieDataSource {
             }
 
             @Override
-            public void onFailure(Call<MoviesResource> call, Throwable t) {
+            public void onFailure(@NonNull Call<MoviesResource> call, @NonNull Throwable t) {
                 onFailure.run();
             }
         });
     }
-
-    public void clearMovieData() {
-        mData.clear();
-    }
-
-    public ArrayList<MovieItem> getMovieData() {
-        return mData;
-    }
-
 }

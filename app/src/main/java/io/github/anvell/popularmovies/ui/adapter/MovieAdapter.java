@@ -35,7 +35,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     }
 
     public MovieAdapter(ArrayList<MovieItem> movieItems) {
+        setHasStableIds(true);
         mMovieItems = movieItems;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return mMovieItems.get(position).posterPath.hashCode();
     }
 
     @NonNull
@@ -44,6 +50,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         mContext = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View movieGridView = inflater.inflate(R.layout.movie_grid_item, parent, false);
+
         return new ViewHolder(movieGridView);
     }
 
@@ -52,6 +59,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         String posterUrl = BASE_PATH + mMovieItems.get(position).posterPath;
         Picasso.with(getContext())
                 .load(posterUrl)
+                .placeholder(R.drawable.placeholder_image)
                 .into(holder.imageView);
     }
 

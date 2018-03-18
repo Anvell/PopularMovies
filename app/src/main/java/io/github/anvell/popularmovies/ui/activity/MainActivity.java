@@ -2,10 +2,14 @@ package io.github.anvell.popularmovies.ui.activity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.ItemAnimator;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -29,7 +33,9 @@ import io.github.anvell.popularmovies.R;
 import io.github.anvell.popularmovies.models.MovieDataSource;
 import io.github.anvell.popularmovies.presentation.presenter.MainPresenter;
 import io.github.anvell.popularmovies.presentation.view.MainView;
+import io.github.anvell.popularmovies.presentation.view.NotificationIndicators;
 import io.github.anvell.popularmovies.ui.adapter.MovieAdapter;
+import io.github.anvell.popularmovies.utils.EndlessRecyclerViewScrollListener;
 
 public class MainActivity extends MvpAppCompatActivity
         implements MainView, NavigationView.OnNavigationItemSelectedListener {
@@ -39,11 +45,13 @@ public class MainActivity extends MvpAppCompatActivity
 
     private MovieAdapter mAdapter;
 
+    @BindView(R.id.srl_main_activity) SwipeRefreshLayout swipeLoader;
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
     @BindView(R.id.nav_view) NavigationView navigationView;
     @BindView(R.id.movie_grid) RecyclerView movieGridView;
-    @BindView(R.id.pg_loading_movies) ProgressBar loadingBar;
+    @BindView(R.id.pg_loading_movies) ProgressBar loadingCircle;
+    @BindView(R.id.tv_no_connection) TextView errorNoConnectionText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,10 +68,18 @@ public class MainActivity extends MvpAppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
+        swipeLoader.setOnRefreshListener(() -> {
+            if(!mMainPresenter.isLoadingData())
+                mMainPresenter.fetchMovieData();
+            else
+                swipeLoader.setRefreshing(false);
+        });
+
         configureMovieGrid();
 
-        if(savedInstanceState == null || mMainPresenter.getMovieData().isEmpty())
-            mMainPresenter.sortIdChanged(R.id.nav_popular);
+        if(savedInstanceState == null || mMainPresenter.getMovieData().isEmpty()) {
+            mMainPresenter.fetchMovieData();
+        }
     }
 
     @Override
@@ -82,15 +98,16 @@ public class MainActivity extends MvpAppCompatActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         return item.getItemId() == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         drawer.closeDrawer(GravityCompat.START);
-        mMainPresenter.sortIdChanged(id);
+        if(id != mMainPresenter.getCurrentSortId())
+            mMainPresenter.fetchMovieData(id);
         return true;
     }
 
@@ -101,13 +118,27 @@ public class MainActivity extends MvpAppCompatActivity
     }
 
     @Override
+    public void showNotification(int indicator) {
+        if((indicator & NotificationIndicators.NO_CONNECTION_NOTIFICATION)
+                == NotificationIndicators.NO_CONNECTION_NOTIFICATION)
+            errorNoConnectionText.setVisibility(View.VISIBLE);
+
+        if((indicator & NotificationIndicators.LOADING_CIRCLE)
+                == NotificationIndicators.LOADING_CIRCLE)
+            loadingCircle.setVisibility(View.VISIBLE);
+    }
+
+    @Override
     public void notifyDataUpdated() {
-        loadingBar.setVisibility(View.GONE);
+        loadingCircle.setVisibility(View.GONE);
+        errorNoConnectionText.setVisibility(View.GONE);
+        swipeLoader.setRefreshing(false);
         mAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void notifyDataUpdated(int insertPosition, int length) {
+        loadingCircle.setVisibility(View.GONE);
         mAdapter.notifyItemRangeInserted(insertPosition, length);
     }
 
@@ -125,30 +156,34 @@ public class MainActivity extends MvpAppCompatActivity
         toolbar.setTitle(strId);
     }
 
+    private void openDetailsActivity(int position) {
+        Toast.makeText(this, mMainPresenter.getMovieData().get(position).originalTitle + " was clicked!",
+                Toast.LENGTH_SHORT).show();
+    }
+
     private void configureMovieGrid() {
         DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
         float width = (displayMetrics.widthPixels * 160) / displayMetrics.density;
         float imageWidth = (342 * 160) / displayMetrics.density;
 
-        movieGridView.setLayoutManager(new GridLayoutManager(this, Math.round(width / imageWidth)));
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, Math.round(width / imageWidth));
+        movieGridView.setLayoutManager(gridLayoutManager);
+        ItemAnimator animator = movieGridView.getItemAnimator();
+        if (animator instanceof SimpleItemAnimator) {
+            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+        }
 
         mAdapter = new MovieAdapter(mMainPresenter.getMovieData());
+        mAdapter.setOnItemClickListener((view, position) -> openDetailsActivity(position));
         movieGridView.setAdapter(mAdapter);
 
-        movieGridView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        EndlessRecyclerViewScrollListener endlessListener = new EndlessRecyclerViewScrollListener(gridLayoutManager) {
 
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                if (!recyclerView.canScrollVertically(1) && !mMainPresenter.isLoadingData()) {
-                    mMainPresenter.fetchMovieData();
-                }
+            protected void onLoadMore(int totalItemsCount, RecyclerView view) {
+                mMainPresenter.fetchMovieDataNextPage();
             }
-        });
-
-        mAdapter.setOnItemClickListener((view, position) -> {
-            Toast.makeText(this, mMainPresenter.getMovieData().get(position).originalTitle + " was clicked!", Toast.LENGTH_SHORT).show();
-        });
+        };
+        movieGridView.addOnScrollListener(endlessListener);
     }
 }
