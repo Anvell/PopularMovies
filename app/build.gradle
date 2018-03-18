@@ -4,7 +4,7 @@ def movieDbApiKey
 def apiKeysFile = file('../api_keys.txt')
 Properties sensitiveData = new Properties()
 
-if (apiKeysFile.canRead()){
+if (apiKeysFile.canRead()) {
     sensitiveData.load(new FileInputStream(apiKeysFile))
 
     if (sensitiveData != null) {
@@ -63,4 +63,5 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'com.google.code.gson:gson:2.8.2'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    implementation 'com.android.support:cardview-v7:27.1.0'
 }

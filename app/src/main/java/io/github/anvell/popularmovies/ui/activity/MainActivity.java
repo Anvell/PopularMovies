@@ -1,6 +1,7 @@
 package io.github.anvell.popularmovies.ui.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -157,8 +158,12 @@ public class MainActivity extends MvpAppCompatActivity
     }
 
     private void openDetailsActivity(int position) {
-        Toast.makeText(this, mMainPresenter.getMovieData().get(position).originalTitle + " was clicked!",
-                Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, DetailsActivity.class);
+        intent.putExtra(getString(R.string.intent_movie_id),
+                        mMainPresenter.getMovieData().get(position).id);
+        intent.putExtra(getString(R.string.intent_movie_title),
+                mMainPresenter.getMovieData().get(position).title);
+        startActivity(intent);
     }
 
     private void configureMovieGrid() {

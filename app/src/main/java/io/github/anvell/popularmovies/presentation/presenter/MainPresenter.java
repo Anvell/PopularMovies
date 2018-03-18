@@ -19,17 +19,18 @@ import retrofit2.Retrofit;
 @InjectViewState
 public class MainPresenter extends MvpPresenter<MainView> {
 
-    private MovieDataSource mDataSource;
+    private MovieDataSource mMovieDataSource;
     private int mCurrentSortId;
     private boolean mIsLoadingData;
     private ArrayList<MovieItem> mData;
     private int mLastPage;
 
     public MainPresenter() {
-        mDataSource = new MovieDataSource();
         mData = new ArrayList<>();
+        mMovieDataSource = new MovieDataSource();
         mLastPage = MovieDataSource.DEFAULT_PAGE;
         mCurrentSortId = R.id.nav_popular;
+        mIsLoadingData = false;
     }
 
     private String getSortingKey(int key) {
@@ -55,11 +56,14 @@ public class MainPresenter extends MvpPresenter<MainView> {
     }
 
     private void fetchMovieData(int sorting, int page) {
+
+        if(mMovieDataSource.maxPages > 0 && page > mMovieDataSource.maxPages) return;
+
         mIsLoadingData = true;
-        int oldSize = getMovieData().size();
+        int oldSize = mData.size();
         onSortingChanged(sorting);
 
-        mDataSource.fetchMovieData(mData, getSortingKey(sorting), page, () -> {
+        mMovieDataSource.fetchMovieData(mData, getSortingKey(sorting), page, () -> {
                 if(page > mLastPage)
                     getViewState().notifyDataUpdated(oldSize, getMovieData().size() - oldSize);
                 else

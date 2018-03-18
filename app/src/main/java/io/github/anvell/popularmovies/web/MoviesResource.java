@@ -1,5 +1,6 @@
 package io.github.anvell.popularmovies.web;
 
+import java.util.ArrayList;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -19,4 +20,7 @@ public class MoviesResource {
     @Expose
     public Integer totalPages;
 
+    public MoviesResource() {
+        results = new ArrayList<>();
+    }
 }

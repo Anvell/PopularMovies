@@ -26,6 +26,11 @@
         <item name="android:paddingBottom">2dp</item>
     </style>
 
+    <style name="HeadingHuge" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">32sp</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
     <style name="BodyText" parent="TextAppearance.AppCompat">
         <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">sans-serif-light</item>
