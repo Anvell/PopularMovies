@@ -27,7 +27,7 @@
         android:text="@string/error_no_connection"
         android:visibility="visible"
         android:gravity="center"
-        style="@style/Heading1"
+        style="@style/BodyText"
         app:layout_constraintBottom_toTopOf="parent"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintStart_toStartOf="parent"

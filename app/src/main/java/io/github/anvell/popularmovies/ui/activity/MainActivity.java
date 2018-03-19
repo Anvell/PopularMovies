@@ -107,7 +107,7 @@ public class MainActivity extends MvpAppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         drawer.closeDrawer(GravityCompat.START);
-        if(id != mMainPresenter.getCurrentSortId())
+        if(id != mMainPresenter.getCurrentSortId() && !mMainPresenter.isLoadingData())
             mMainPresenter.fetchMovieData(id);
         return true;
     }

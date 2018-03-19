@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.anvell.popularmovies.models.MovieDataSource;
 import io.github.anvell.popularmovies.presentation.view.DetailsView;
-import io.github.anvell.popularmovies.presentation.view.NotificationIndicators;
 import io.github.anvell.popularmovies.web.MovieDetails;
 
 @InjectViewState

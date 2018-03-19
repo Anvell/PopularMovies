@@ -23,25 +23,25 @@
             app:expandedTitleMarginStart="48dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/details_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:title="Movie details"
-                app:layout_scrollFlags="scroll|enterAlways"/>
+            <!--<android.support.v7.widget.Toolbar-->
+            <!--android:id="@+id/details_toolbar"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="?attr/actionBarSize"-->
+            <!--android:background="?attr/colorPrimary"-->
+            <!--app:title="Movie details"-->
+            <!--app:layout_scrollFlags="scroll|enterAlways"/>-->
 
             <ImageView
                 android:id="@+id/iv_poster"
-                android:minHeight="100dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/placeholder_image"
-                android:scaleType="centerCrop"
-                app:layout_collapseMode="parallax"
-                app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
+                android:contentDescription="@string/description_poster"
                 android:fitsSystemWindows="true"
-                android:contentDescription="@string/description_poster"/>
+                android:minHeight="100dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/placeholder_image"
+                app:layout_collapseMode="parallax"
+                app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed" />
 
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
@@ -49,39 +49,92 @@
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="@dimen/activity_horizontal_margin">
 
             <TextView
-                android:id="@+id/tv_details_year"
-                style="@style/HeadingHuge"
+                android:id="@+id/tv_details_title"
+                style="@style/Heading1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="15dp"
+                android:paddingBottom="@dimen/activity_vertical_margin"
                 app:layout_constraintStart_toStartOf="parent"
-                tools:text="2018" />
+                tools:text="Title" />
 
             <android.support.v7.widget.CardView
-                android:layout_width="140dp"
-                android:layout_height="60dp"
-                android:layout_marginStart="15dp"
-                android:layout_marginTop="15dp"
-                app:layout_constraintStart_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_details_year"
-                tools:layout_editor_absoluteX="8dp"
-                tools:layout_editor_absoluteY="0dp">
+                android:id="@+id/cv_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_details_title"
+                android:visibility="gone"
+                tools:visibility="visible">
 
-                <TextView
-                    style="@style/BodyText"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="5dp"
-                    tools:text="Rating" />
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/tv_details_year"
+                        style="@style/Heading2_NoPadding"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="2018" />
+
+                    <View
+                        android:layout_width="0.5dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/colorPrimaryLight"
+                        android:layout_marginStart="@dimen/activity_horizontal_margin"
+                        android:layout_marginEnd="@dimen/activity_horizontal_margin" />
+
+                    <TextView
+                        style="@style/BodyText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingEnd="5dp"
+                        android:paddingStart="0dp"
+                        android:text="@string/details_rating" />
+
+                    <TextView
+                        android:id="@+id/tv_details_rating"
+                        style="@style/Heading2_NoPadding"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        tools:text="8.2" />
+                </LinearLayout>
             </android.support.v7.widget.CardView>
+
+            <TextView
+                android:id="@+id/tv_details_overview"
+                style="@style/Heading2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingTop="15dp"
+                android:text="@string/details_overview"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cv_rating"
+                android:visibility="gone"
+                tools:visibility="visible"/>
+
+            <TextView
+                android:id="@+id/tv_details_overview_body"
+                style="@style/BodyText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_details_overview"
+                tools:text="Lorem ipsum dolor" />
+
         </android.support.constraint.ConstraintLayout>
     </android.support.v4.widget.NestedScrollView>
 

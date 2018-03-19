@@ -12,8 +12,12 @@
     <string name="sort_top_rated">Top rated movies</string>
 
     <string name="poster_base_path">http://image.tmdb.org/t/p/w342</string>
+    <string name="poster_base_path_hd">http://image.tmdb.org/t/p/w780</string>
 
     <string name="description_poster">Movie poster</string>
+
+    <string name="details_overview">Overview</string>
+    <string name="details_rating">RATING</string>
 
     <string name="error_no_connection">You are offline, please check your connection.</string>
 

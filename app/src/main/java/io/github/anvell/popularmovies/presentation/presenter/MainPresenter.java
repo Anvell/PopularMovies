@@ -1,20 +1,17 @@
 package io.github.anvell.popularmovies.presentation.presenter;
 
 import android.os.Handler;
-import android.util.Log;
 
 import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import io.github.anvell.popularmovies.R;
 import io.github.anvell.popularmovies.models.MovieDataSource;
 import io.github.anvell.popularmovies.presentation.view.MainView;
 import io.github.anvell.popularmovies.presentation.view.NotificationIndicators;
 import io.github.anvell.popularmovies.web.MovieItem;
-import retrofit2.Retrofit;
 
 @InjectViewState
 public class MainPresenter extends MvpPresenter<MainView> {

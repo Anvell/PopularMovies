@@ -1,10 +1,8 @@
 package io.github.anvell.popularmovies.models;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.anvell.popularmovies.BuildConfig;
@@ -13,8 +11,8 @@ import io.github.anvell.popularmovies.web.MovieDbService;
 import io.github.anvell.popularmovies.web.MovieDetails;
 import io.github.anvell.popularmovies.web.MovieItem;
 import io.github.anvell.popularmovies.web.MoviesResource;
-import retrofit2.Callback;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MovieDataSource {
