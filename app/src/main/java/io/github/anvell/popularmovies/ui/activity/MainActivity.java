@@ -1,26 +1,22 @@
 package io.github.anvell.popularmovies.ui.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ItemAnimator;
 import android.support.v7.widget.SimpleItemAnimator;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.View;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,7 +27,6 @@ import com.arellomobile.mvp.presenter.InjectPresenter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.anvell.popularmovies.R;
-import io.github.anvell.popularmovies.models.MovieDataSource;
 import io.github.anvell.popularmovies.presentation.presenter.MainPresenter;
 import io.github.anvell.popularmovies.presentation.view.MainView;
 import io.github.anvell.popularmovies.presentation.view.NotificationIndicators;
@@ -168,10 +163,10 @@ public class MainActivity extends MvpAppCompatActivity
 
     private void configureMovieGrid() {
         DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
-        float width = (displayMetrics.widthPixels * 160) / displayMetrics.density;
-        float imageWidth = (342 * 160) / displayMetrics.density;
+        float widthDip = displayMetrics.widthPixels / displayMetrics.density;
+        float imageWidthDip = getResources().getInteger(R.integer.poster_width) / displayMetrics.density;
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, Math.round(width / imageWidth));
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, (int)(widthDip / imageWidthDip));
         movieGridView.setLayoutManager(gridLayoutManager);
         ItemAnimator animator = movieGridView.getItemAnimator();
         if (animator instanceof SimpleItemAnimator) {

@@ -4,7 +4,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 
 /**
  * Based on snippet from:
@@ -17,7 +16,7 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
     private int previousTotalItemCount = 0;
     private boolean loading = true;
 
-    private RecyclerView.LayoutManager mLayoutManager;
+    private final RecyclerView.LayoutManager mLayoutManager;
 
     public EndlessRecyclerViewScrollListener(LinearLayoutManager layoutManager) {
         this.mLayoutManager = layoutManager;

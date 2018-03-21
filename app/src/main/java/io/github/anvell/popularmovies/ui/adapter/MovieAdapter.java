@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
@@ -23,8 +22,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     private ArrayList<MovieItem> mMovieItems;
     private Context mContext;
     private OnItemClickListener mListener;
-
-    private final String BASE_PATH = "http://image.tmdb.org/t/p/w342";
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         mListener = listener;
@@ -56,8 +53,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String posterUrl = mContext.getString(R.string.poster_base_path)
+
+        int posterWidth = mContext.getResources().getInteger(R.integer.poster_width);
+        String posterUrl = mContext.getString(R.string.images_base_path)
+                           + String.valueOf(posterWidth)
                            + mMovieItems.get(position).posterPath;
+
         Picasso.with(getContext())
                 .load(posterUrl)
                 .placeholder(R.drawable.placeholder_image)
@@ -69,15 +70,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         return mMovieItems.size();
     }
 
-    public Context getContext() {
+    private Context getContext() {
         return mContext;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.movie_grid_image) ImageView imageView;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
 

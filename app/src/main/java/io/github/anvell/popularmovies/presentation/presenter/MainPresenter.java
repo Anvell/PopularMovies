@@ -16,7 +16,7 @@ import io.github.anvell.popularmovies.web.MovieItem;
 @InjectViewState
 public class MainPresenter extends MvpPresenter<MainView> {
 
-    private MovieDataSource mMovieDataSource;
+    private final MovieDataSource mMovieDataSource;
     private int mCurrentSortId;
     private boolean mIsLoadingData;
     private ArrayList<MovieItem> mData;
@@ -77,7 +77,7 @@ public class MainPresenter extends MvpPresenter<MainView> {
         else
             getViewState().showNotification(NotificationIndicators.LOADING_CIRCLE);
 
-        new Handler().postDelayed(() -> fetchMovieData(sorting, page), 3000);
+        new Handler().postDelayed(() -> fetchMovieData(sorting, page), MovieDataSource.REQUEST_DELAY);
     }
 
     private void onSortingChanged(int id) {

@@ -5,31 +5,40 @@ import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.arellomobile.mvp.MvpAppCompatActivity;
 import com.arellomobile.mvp.presenter.InjectPresenter;
 import com.squareup.picasso.Picasso;
 
+import java.util.Iterator;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.anvell.popularmovies.R;
+import io.github.anvell.popularmovies.models.MovieDataSource;
 import io.github.anvell.popularmovies.presentation.presenter.DetailsPresenter;
 import io.github.anvell.popularmovies.presentation.view.DetailsView;
 import io.github.anvell.popularmovies.web.MovieDetails;
+import io.github.anvell.popularmovies.web.MovieGenre;
 
 public class DetailsActivity extends MvpAppCompatActivity implements DetailsView {
 
     @InjectPresenter
     DetailsPresenter mDetailsPresenter;
 
+    @BindView(R.id.pg_loading_details) ProgressBar detailsLoadingBar;
     @BindView(R.id.cv_rating) CardView detailsRatingCard;
     @BindView(R.id.tv_details_title) TextView detailsTitle;
     @BindView(R.id.tv_details_year) TextView detailsYear;
     @BindView(R.id.tv_details_rating) TextView detailsRating;
+    @BindView(R.id.tv_details_rating_caption) TextView detailsRatingCaption;
     @BindView(R.id.tv_details_overview) TextView detailsOverview;
     @BindView(R.id.tv_details_overview_body) TextView detailsOverviewBody;
-
+    @BindView(R.id.tv_details_genres) TextView detailsGenres;
+    @BindView(R.id.tv_details_genres_body) TextView detailsGenresBody;
     @BindView(R.id.iv_poster) ImageView detailsPoster;
 
     @Override
@@ -45,28 +54,65 @@ public class DetailsActivity extends MvpAppCompatActivity implements DetailsView
         if(movieTitle != null)
             detailsTitle.setText(movieTitle);
 
-        mDetailsPresenter.fetchMovieDetails(movieId);
+        if(savedInstanceState == null && !mDetailsPresenter.isLoadingData())
+            mDetailsPresenter.fetchMovieDetails(movieId);
     }
 
     @Override
     public void updateDetails(MovieDetails movieDetails) {
 
-        // Let's avoid super verbose date parsing...
-        int index = movieDetails.releaseDate.indexOf("-");
+        // Let's avoid verbose date parsing...
+        int index = movieDetails.releaseDate.indexOf(MovieDataSource.MOVIEDB_DATE_SEPARATOR);
         detailsYear.setText(movieDetails.releaseDate.substring(0, index));
 
-        detailsOverview.setVisibility(View.VISIBLE);
-        detailsRatingCard.setVisibility(View.VISIBLE);
+        revealViews(detailsOverview, detailsRatingCard, detailsGenres);
 
-        if(movieDetails.posterPath instanceof String)
+        if(movieDetails.backdropPath != null) {
             updatePoster(movieDetails.backdropPath);
+        } else
+            if(movieDetails.posterPath != null && movieDetails.posterPath instanceof String) {
+            updatePoster((String) movieDetails.posterPath);
+        }
 
-        detailsRating.setText(String.valueOf(movieDetails.voteAverage));
+        if(movieDetails.voteAverage > 0)
+            detailsRating.setText(String.valueOf(movieDetails.voteAverage));
+        else detailsRatingCaption.setText(R.string.details_rating_none);
+
         detailsOverviewBody.setText(movieDetails.overview);
+
+        detailsGenresBody.setText(joinGenres(movieDetails.genres));
+    }
+
+    @Override
+    public void showProgress() {
+        detailsLoadingBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideProgress() {
+        detailsLoadingBar.setVisibility(View.GONE);
+    }
+
+    private String joinGenres(List<MovieGenre> genres) {
+
+        if(genres == null || genres.size() < 1) return "";
+        String sep = getString(R.string.details_genre_separator);
+        StringBuilder sb = new StringBuilder();
+        for(Iterator<MovieGenre> i = genres.iterator(); i.hasNext();) {
+            sb.append(i.next().name);
+            if(i.hasNext()) sb.append(sep);
+        }
+        return sb.toString();
+    }
+
+    private void revealViews(View... textViews) {
+        for(View v : textViews) v.setVisibility(View.VISIBLE);
     }
 
     private void updatePoster(String posterPath) {
-        String posterUrl = getString(R.string.poster_base_path_hd) + posterPath;
+        int imageWidth = getResources().getInteger(R.integer.backdrop_width);
+        String posterUrl = getString(R.string.images_base_path)
+                           + String.valueOf(imageWidth) + posterPath;
         Picasso.with(this)
                 .load(posterUrl)
                 .placeholder(R.drawable.placeholder_image)

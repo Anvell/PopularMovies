@@ -14,8 +14,8 @@ import io.github.anvell.popularmovies.web.MovieDetails;
 @InjectViewState
 public class DetailsPresenter extends MvpPresenter<DetailsView> {
 
-    private MovieDataSource mMovieDataSource;
-    private AtomicReference<MovieDetails> mMovieDetails;
+    private final MovieDataSource mMovieDataSource;
+    private final AtomicReference<MovieDetails> mMovieDetails;
     private boolean mIsLoadingData;
 
     public DetailsPresenter() {
@@ -26,22 +26,23 @@ public class DetailsPresenter extends MvpPresenter<DetailsView> {
 
     public void fetchMovieDetails(int movieId) {
         mIsLoadingData = true;
+        getViewState().showProgress();
         mMovieDataSource.fetchMovieDetailsData(mMovieDetails, movieId,
                          this::updateView, () -> handleNetworkError(movieId));
+    }
+
+    public boolean isLoadingData() {
+        return mIsLoadingData;
     }
 
     private void updateView() {
         if(mMovieDetails.get() != null)
             getViewState().updateDetails(mMovieDetails.get());
         mIsLoadingData = false;
+        getViewState().hideProgress();
     }
 
     private void handleNetworkError(int movieId) {
-//        if(mData.isEmpty())
-//            getViewState().showNotification(NotificationIndicators.NO_CONNECTION_NOTIFICATION);
-//        else
-//            getViewState().showNotification(NotificationIndicators.LOADING_CIRCLE);
-
-        new Handler().postDelayed(() -> fetchMovieDetails(movieId), 3000);
+        new Handler().postDelayed(() -> fetchMovieDetails(movieId), MovieDataSource.REQUEST_DELAY);
     }
 }

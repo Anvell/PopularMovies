@@ -19,11 +19,13 @@ public class MovieDataSource {
 
     public static final String SORT_BY_POPULAR = "popular";
     public static final String SORT_BY_TOP_RATED = "top_rated";
+    public static final String MOVIEDB_DATE_SEPARATOR = "-";
+    public static final int REQUEST_DELAY = 3000;
     public static final int DEFAULT_PAGE = 1;
 
     public int maxPages = -1;
 
-    private MovieDbService mClient;
+    private final MovieDbService mClient;
 
     public MovieDataSource() {
         mClient = ApiClient.getClient();
