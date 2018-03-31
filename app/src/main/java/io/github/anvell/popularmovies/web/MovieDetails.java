@@ -76,5 +76,8 @@ public class MovieDetails {
     @SerializedName("vote_count")
     @Expose
     public Integer voteCount;
+    @SerializedName("videos")
+    @Expose
+    public MovieVideos videos;
 
 }

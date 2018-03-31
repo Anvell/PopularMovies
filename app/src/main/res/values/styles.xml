@@ -49,10 +49,12 @@
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
-    <style name="CaptionText" parent="TextAppearance.AppCompat">
+    <style name="CaptionText" parent="BodyText">
         <item name="android:textSize">12sp</item>
-        <item name="android:lineSpacingMultiplier">1.2</item>
-        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="SmallCaptionText" parent="CaptionText">
+        <item name="android:textSize">9sp</item>
     </style>
 
 </resources>

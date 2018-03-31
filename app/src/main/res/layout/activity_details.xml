@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/app_bar_layout_height"
         android:fitsSystemWindows="true"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:theme="@style/AppTheme.AppBarOverlay"
+        tools:visibility="gone">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/collapsing_toolbar"
@@ -34,13 +35,13 @@
                 app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed" />
 
             <ProgressBar
-                style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
                 android:id="@+id/pg_loading_details"
+                style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/horizontal_progress_bar_height"
                 android:layout_gravity="bottom"
                 android:indeterminate="true"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
@@ -69,9 +70,9 @@
                 android:id="@+id/cv_rating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_details_title"
-                android:visibility="gone"
                 tools:visibility="visible">
 
                 <LinearLayout
@@ -89,13 +90,13 @@
                     <View
                         android:layout_width="@dimen/separator_thickness"
                         android:layout_height="match_parent"
-                        android:background="@color/colorPrimaryLight"
+                        android:layout_marginEnd="@dimen/activity_horizontal_margin"
                         android:layout_marginStart="@dimen/activity_horizontal_margin"
-                        android:layout_marginEnd="@dimen/activity_horizontal_margin" />
+                        android:background="@color/colorPrimaryLight" />
 
                     <TextView
-                        style="@style/BodyText"
                         android:id="@+id/tv_details_rating_caption"
+                        style="@style/BodyText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingEnd="@dimen/card_view_padding"
@@ -119,10 +120,10 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="@dimen/activity_vertical_margin"
                 android:text="@string/details_overview"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/cv_rating"
-                android:visibility="gone"
-                tools:visibility="visible"/>
+                tools:visibility="visible" />
 
             <TextView
                 android:id="@+id/tv_details_overview_body"
@@ -138,9 +139,9 @@
                 android:id="@+id/v_horizontal_line"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/separator_thickness"
-                android:background="@color/colorPrimaryLight"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:background="@color/colorPrimaryLight"
                 app:layout_constraintTop_toBottomOf="@id/tv_details_overview_body" />
 
             <TextView
@@ -150,10 +151,10 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="@dimen/activity_vertical_margin"
                 android:text="@string/details_genres"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/v_horizontal_line"
-                android:visibility="gone"
-                tools:visibility="visible"/>
+                tools:visibility="visible" />
 
             <TextView
                 android:id="@+id/tv_details_genres_body"
@@ -165,6 +166,37 @@
                 app:layout_constraintTop_toBottomOf="@id/tv_details_genres"
                 tools:text="Lorem ipsum dolor" />
 
+            <LinearLayout
+                android:id="@+id/ll_movies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_details_genres_body"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    style="@style/Heading3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/activity_vertical_margin"
+                    android:text="@string/details_videos" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_details_genres_body">
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/rv_videos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/nav_header_vertical_spacing"
+                        android:paddingBottom="@dimen/nav_header_vertical_spacing"/>
+                </HorizontalScrollView>
+            </LinearLayout>
         </android.support.constraint.ConstraintLayout>
     </android.support.v4.widget.NestedScrollView>
 
