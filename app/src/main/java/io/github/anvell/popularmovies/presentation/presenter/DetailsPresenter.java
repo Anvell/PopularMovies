@@ -35,6 +35,10 @@ public class DetailsPresenter extends MvpPresenter<DetailsView> {
         return mIsLoadingData;
     }
 
+    public MovieDetails getMovieDetails() {
+        return mMovieDetails.get();
+    }
+
     private void updateView() {
         if(mMovieDetails.get() != null)
             getViewState().updateDetails(mMovieDetails.get());

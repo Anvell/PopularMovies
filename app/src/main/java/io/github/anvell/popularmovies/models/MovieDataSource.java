@@ -10,6 +10,7 @@ import io.github.anvell.popularmovies.web.ApiClient;
 import io.github.anvell.popularmovies.web.MovieDbService;
 import io.github.anvell.popularmovies.web.MovieDetails;
 import io.github.anvell.popularmovies.web.MovieItem;
+import io.github.anvell.popularmovies.web.MovieReviews;
 import io.github.anvell.popularmovies.web.MoviesResource;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -34,47 +35,37 @@ public class MovieDataSource {
     public void fetchMovieData(ArrayList<MovieItem> data, String sorting, int page,
                                Runnable onSuccess, Runnable onFailure) {
         mClient.getMovies(sorting, BuildConfig.MOVIEDB_API_KEY, page)
-               .enqueue(new Callback<MoviesResource>() {
-            @Override
-            public void onResponse(@NonNull Call<MoviesResource> call,
-                                   @NonNull Response<MoviesResource> response) {
-                if(response.isSuccessful() && response.body() != null) {
-                    //noinspection ConstantConditions
-                    maxPages = response.body().totalPages;
-                    //noinspection ConstantConditions
-                    data.addAll(response.body().results);
-                    onSuccess.run();
-                } else {
-                    onFailure.run();
-                }
-            }
+                .enqueue(new Callback<MoviesResource>() {
+                    @Override
+                    public void onResponse(@NonNull Call<MoviesResource> call,
+                                           @NonNull Response<MoviesResource> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            //noinspection ConstantConditions
+                            maxPages = response.body().totalPages;
+                            //noinspection ConstantConditions
+                            data.addAll(response.body().results);
+                            onSuccess.run();
+                        } else {
+                            onFailure.run();
+                        }
+                    }
 
-            @Override
-            public void onFailure(@NonNull Call<MoviesResource> call, @NonNull Throwable t) {
-                onFailure.run();
-            }
-        });
+                    @Override
+                    public void onFailure(@NonNull Call<MoviesResource> call, @NonNull Throwable t) {
+                        onFailure.run();
+                    }
+                });
     }
 
     public void fetchMovieDetailsData(AtomicReference<MovieDetails> data, int movieId,
                                       Runnable onSuccess, Runnable onFailure) {
         mClient.getMovieDetails(movieId, BuildConfig.MOVIEDB_API_KEY)
-               .enqueue(new Callback<MovieDetails>() {
-            @Override
-            public void onResponse(@NonNull Call<MovieDetails> call,
-                                   @NonNull Response<MovieDetails> response) {
-                if(response.isSuccessful() && response.body() != null) {
-                    data.set(response.body());
-                    onSuccess.run();
-                } else {
-                    onFailure.run();
-                }
-            }
+                .enqueue(new AtomicCallback<>(data, onSuccess, onFailure));
+    }
 
-            @Override
-            public void onFailure(@NonNull Call<MovieDetails> call, @NonNull Throwable t) {
-                onFailure.run();
-            }
-        });
+    public void fetchMovieReviewsData(AtomicReference<MovieReviews> data, int movieId, int page,
+                                      Runnable onSuccess, Runnable onFailure) {
+        mClient.getMovieReviews(movieId, BuildConfig.MOVIEDB_API_KEY, page)
+                .enqueue(new AtomicCallback<>(data, onSuccess, onFailure));
     }
 }

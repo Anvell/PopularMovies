@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_marginTop="@dimen/card_view_padding"
+    android:focusable="false"
+    android:focusableInTouchMode="false"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+
+    <LinearLayout
+        android:id="@+id/ll_review_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/card_view_padding"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/SmallCaptionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/reviews_by"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:textAppearance="?attr/textAppearanceListItem" />
+
+        <TextView
+            android:textColor="@color/colorPrimaryLight"
+            android:id="@+id/tv_review_author"
+            style="@style/Heading2_NoPadding"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/text_margin"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
+
+        <TextView
+            android:id="@+id/tv_review_content"
+            style="@style/CaptionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="4"
+            android:ellipsize="end"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
+    </LinearLayout>
+</android.support.v7.widget.CardView>

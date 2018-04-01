@@ -7,6 +7,8 @@ import com.google.gson.annotations.SerializedName;
 
 public class MovieDetails {
 
+    public boolean isFavourite = false;
+
     @SerializedName("adult")
     @Expose
     public Boolean adult;

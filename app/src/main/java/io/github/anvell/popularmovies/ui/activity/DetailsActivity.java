@@ -5,12 +5,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,20 +30,16 @@ import io.github.anvell.popularmovies.R;
 import io.github.anvell.popularmovies.models.MovieDataSource;
 import io.github.anvell.popularmovies.presentation.presenter.DetailsPresenter;
 import io.github.anvell.popularmovies.presentation.view.DetailsView;
-import io.github.anvell.popularmovies.ui.adapter.MovieAdapter;
 import io.github.anvell.popularmovies.ui.adapter.VideoAdapter;
-import io.github.anvell.popularmovies.utils.EndlessRecyclerViewScrollListener;
+import io.github.anvell.popularmovies.ui.fragment.ReviewsFragment;
 import io.github.anvell.popularmovies.web.MovieDetails;
 import io.github.anvell.popularmovies.web.MovieGenre;
 import io.github.anvell.popularmovies.web.MovieVideo;
-import io.github.anvell.popularmovies.web.MovieVideos;
 
 public class DetailsActivity extends MvpAppCompatActivity implements DetailsView {
 
     @InjectPresenter
     DetailsPresenter mDetailsPresenter;
-
-    private VideoAdapter mAdapter;
 
     @BindView(R.id.pg_loading_details) ProgressBar detailsLoadingBar;
     @BindView(R.id.cv_rating) CardView detailsRatingCard;
@@ -57,6 +52,7 @@ public class DetailsActivity extends MvpAppCompatActivity implements DetailsView
     @BindView(R.id.tv_details_genres) TextView detailsGenres;
     @BindView(R.id.tv_details_genres_body) TextView detailsGenresBody;
     @BindView(R.id.iv_poster) ImageView detailsPoster;
+    @BindView(R.id.iv_favourite) ImageView favouriteToggle;
     @BindView(R.id.rv_videos) RecyclerView videosListView;
     @BindView(R.id.ll_movies) LinearLayout videosView;
 
@@ -75,6 +71,8 @@ public class DetailsActivity extends MvpAppCompatActivity implements DetailsView
 
         if(savedInstanceState == null && !mDetailsPresenter.isLoadingData())
             mDetailsPresenter.fetchMovieDetails(movieId);
+
+        createReviewsFragment(movieId);
     }
 
     @Override
@@ -168,10 +166,34 @@ public class DetailsActivity extends MvpAppCompatActivity implements DetailsView
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         videosListView.setLayoutManager(layoutManager);
 
-        mAdapter = new VideoAdapter(videos);
+        VideoAdapter mAdapter = new VideoAdapter(videos);
         mAdapter.setOnItemClickListener((view, position) ->
                  openVideoIntent(videos.get(position).key));
         videosListView.setAdapter(mAdapter);
+    }
 
+    private void createReviewsFragment(int movieId) {
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        ReviewsFragment fragment = new ReviewsFragment();
+        Bundle args = new Bundle();
+        args.putInt(getString(R.string.intent_movie_id), movieId);
+        fragment.setArguments(args);
+
+        fragmentTransaction.add(R.id.reviews_container, fragment);
+        fragmentTransaction.commit();
+    }
+
+    public void OnFavouriteSelected(View view) {
+        if(!mDetailsPresenter.getMovieDetails().isFavourite) {
+            favouriteToggle.setImageResource(R.mipmap.ic_favourite);
+            favouriteToggle.setAlpha(1.0f);
+            mDetailsPresenter.getMovieDetails().isFavourite = true;
+        } else {
+            favouriteToggle.setImageResource(R.mipmap.ic_favourite_outline);
+            favouriteToggle.setAlpha(0.3f);
+            mDetailsPresenter.getMovieDetails().isFavourite = false;
+        }
     }
 }

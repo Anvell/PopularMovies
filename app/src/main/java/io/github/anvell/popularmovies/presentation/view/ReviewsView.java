@@ -4,11 +4,12 @@ import com.arellomobile.mvp.MvpView;
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy;
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType;
 
-import io.github.anvell.popularmovies.web.MovieDetails;
+import java.util.ArrayList;
+import io.github.anvell.popularmovies.web.MovieReview;
 
-public interface DetailsView extends MvpView {
+public interface ReviewsView extends MvpView {
     @StateStrategyType(OneExecutionStateStrategy.class)
-    void updateDetails(MovieDetails movieDetails);
+    void updateReviews(ArrayList<MovieReview> reviews);
 
     void showProgress();
     void hideProgress();

@@ -3,6 +3,7 @@ package io.github.anvell.popularmovies.web;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MovieReviews {
@@ -15,10 +16,10 @@ public class MovieReviews {
     public Integer page;
     @SerializedName("results")
     @Expose
-    public List<MovieReview> results = null;
+    public ArrayList<MovieReview> reviews = new ArrayList<>();
     @SerializedName("total_pages")
     @Expose
-    public Integer totalPages;
+    public Integer totalPages = 1;
     @SerializedName("total_results")
     @Expose
     public Integer totalResults;
