@@ -26,6 +26,12 @@
         <activity android:name=".ui.activity.DetailsActivity"
             android:parentActivityName=".ui.activity.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
+        <provider
+            android:name=".database.MoviesProvider"
+            android:authorities="io.github.anvell.popularmovies.movies"
+            android:exported="false"
+            android:protectionLevel="signature"
+            android:syncable="true"/>
     </application>
 
 </manifest>

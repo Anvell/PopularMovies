@@ -1,4 +1,4 @@
-package io.github.anvell.popularmovies.models;
+package io.github.anvell.popularmovies.utils;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -6,13 +6,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-class AtomicCallback<T> implements Callback<T> {
+public class AtomicCallback<T> implements Callback<T> {
 
     private final AtomicReference<T> data;
     private final Runnable onSuccess;
     private final Runnable onFailure;
 
-    AtomicCallback(AtomicReference<T> data, Runnable onSuccess, Runnable onFailure) {
+    public AtomicCallback(AtomicReference<T> data, Runnable onSuccess, Runnable onFailure) {
         this.data = data;
         this.onSuccess = onSuccess;
         this.onFailure = onFailure;

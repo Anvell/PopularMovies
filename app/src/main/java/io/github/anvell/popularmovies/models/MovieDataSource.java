@@ -1,17 +1,27 @@
 package io.github.anvell.popularmovies.models;
 
+import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.anvell.popularmovies.BuildConfig;
+import io.github.anvell.popularmovies.database.MoviesProviderClient;
+import io.github.anvell.popularmovies.utils.AtomicCallback;
 import io.github.anvell.popularmovies.web.ApiClient;
 import io.github.anvell.popularmovies.web.MovieDbService;
 import io.github.anvell.popularmovies.web.MovieDetails;
 import io.github.anvell.popularmovies.web.MovieItem;
 import io.github.anvell.popularmovies.web.MovieReviews;
 import io.github.anvell.popularmovies.web.MoviesResource;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -57,10 +67,20 @@ public class MovieDataSource {
                 });
     }
 
-    public void fetchMovieDetailsData(AtomicReference<MovieDetails> data, int movieId,
-                                      Runnable onSuccess, Runnable onFailure) {
-        mClient.getMovieDetails(movieId, BuildConfig.MOVIEDB_API_KEY)
-                .enqueue(new AtomicCallback<>(data, onSuccess, onFailure));
+    @SuppressLint("CheckResult")
+    public Disposable fetchMovieDetailsData(@NonNull AtomicReference<MovieDetails> data,
+                                      @NonNull ContentResolver resolver,
+                                      int movieId, Runnable onSuccess) {
+
+        return MoviesProviderClient.getMovie(resolver, movieId)
+                .onErrorResumeNext(mClient.getMovieDetails(movieId, BuildConfig.MOVIEDB_API_KEY))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .retryWhen(t -> t.delay(REQUEST_DELAY, TimeUnit.MILLISECONDS))
+                .subscribe((movieDetails, throwable) -> {
+                    data.set(movieDetails);
+                    onSuccess.run();
+                });
     }
 
     public void fetchMovieReviewsData(AtomicReference<MovieReviews> data, int movieId, int page,

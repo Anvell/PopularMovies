@@ -47,7 +47,7 @@ public class MovieDetails {
     public Double popularity;
     @SerializedName("poster_path")
     @Expose
-    public Object posterPath;
+    public String posterPath;
     @SerializedName("release_date")
     @Expose
     public String releaseDate;
@@ -57,9 +57,6 @@ public class MovieDetails {
     @SerializedName("runtime")
     @Expose
     public Integer runtime;
-    @SerializedName("spoken_languages")
-    @Expose
-    public List<MovieSpokenLanguage> spokenLanguages = null;
     @SerializedName("status")
     @Expose
     public String status;
@@ -82,4 +79,18 @@ public class MovieDetails {
     @Expose
     public MovieVideos videos;
 
+    public MovieItem toMovieItem() {
+        MovieItem item = new MovieItem();
+        item.id = this.id;
+        item.title = this.title;
+        item.posterPath = this.posterPath;
+        item.backdropPath = this.backdropPath;
+        item.originalTitle = this.originalTitle;
+        item.originalLanguage = this.originalLanguage;
+        item.adult = this.adult;
+        item.overview = this.overview;
+        item.popularity = this.popularity;
+        item.releaseDate = this.releaseDate;
+        return item;
+    }
 }

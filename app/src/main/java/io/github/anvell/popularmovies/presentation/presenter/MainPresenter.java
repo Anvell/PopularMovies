@@ -1,17 +1,26 @@
 package io.github.anvell.popularmovies.presentation.presenter;
 
+import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.os.Handler;
+import android.util.SparseArray;
 
 import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import io.github.anvell.popularmovies.R;
+import io.github.anvell.popularmovies.database.MoviesProviderClient;
 import io.github.anvell.popularmovies.models.MovieDataSource;
 import io.github.anvell.popularmovies.presentation.view.MainView;
 import io.github.anvell.popularmovies.presentation.view.NotificationIndicators;
+import io.github.anvell.popularmovies.web.MovieDetails;
 import io.github.anvell.popularmovies.web.MovieItem;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 @InjectViewState
 public class MainPresenter extends MvpPresenter<MainView> {
@@ -20,14 +29,18 @@ public class MainPresenter extends MvpPresenter<MainView> {
     private int mCurrentSortId;
     private boolean mIsLoadingData;
     private ArrayList<MovieItem> mData;
+    private SparseArray<MovieDetails> mLocalData;
     private int mLastPage;
+    private final CompositeDisposable disposables;
 
     public MainPresenter() {
         mData = new ArrayList<>();
+        mLocalData = new SparseArray<>();
         mMovieDataSource = new MovieDataSource();
         mLastPage = MovieDataSource.DEFAULT_PAGE;
         mCurrentSortId = R.id.nav_popular;
         mIsLoadingData = false;
+        disposables = new CompositeDisposable();
     }
 
     private String getSortingKey(int key) {
@@ -38,6 +51,21 @@ public class MainPresenter extends MvpPresenter<MainView> {
         return mCurrentSortId;
     }
 
+    @SuppressLint("CheckResult")
+    public void fetchLocalMovieData(ContentResolver resolver) {
+        mLocalData.clear();
+
+        MoviesProviderClient.getMovies(resolver)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(disposables::add)
+                .doOnComplete(() -> {
+                    if (mCurrentSortId == R.id.nav_favorite)
+                        fetchMovieData(mCurrentSortId);
+                })
+                .subscribe(movieDetails -> mLocalData.put(movieDetails.id, movieDetails));
+    }
+
     public void fetchMovieData() {
         fetchMovieData(mCurrentSortId);
     }
@@ -45,11 +73,21 @@ public class MainPresenter extends MvpPresenter<MainView> {
     public void fetchMovieData(int sorting) {
         mData.clear();
         mLastPage = MovieDataSource.DEFAULT_PAGE;
-        fetchMovieData(sorting, mLastPage);
+
+        if (sorting == R.id.nav_favorite) {
+            onSortingChanged(sorting);
+            for (int i = 0; i < mLocalData.size(); i++) {
+                mData.add(mLocalData.valueAt(i).toMovieItem());
+            }
+            getViewState().notifyDataUpdated();
+
+        } else
+            fetchMovieData(sorting, mLastPage);
     }
 
     public void fetchMovieDataNextPage() {
-        fetchMovieData(mCurrentSortId, mLastPage+1);
+        if (mCurrentSortId != R.id.nav_favorite)
+            fetchMovieData(mCurrentSortId, mLastPage+1);
     }
 
     private void fetchMovieData(int sorting, int page) {

@@ -9,5 +9,5 @@ import java.util.List;
 public class MovieVideos {
     @SerializedName("results")
     @Expose
-    public ArrayList<MovieVideo> results = null;
+    public ArrayList<MovieVideo> results;
 }

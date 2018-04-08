@@ -28,7 +28,7 @@ public class ReviewsFragment extends MvpFragment implements ReviewsView {
     ReviewsPresenter mReviewsPresenter;
 
     @BindView(R.id.rv_reviews) RecyclerView reviewsListView;
-    @BindView(R.id.tv_reviews_pages) TextView reviewsPages;
+    @BindView(R.id.tv_reviews_title) TextView reviewsTitle;
 
     private int mMovieId;
     private ReviewAdapter mAdapter;
@@ -76,7 +76,7 @@ public class ReviewsFragment extends MvpFragment implements ReviewsView {
     @Override
     public void updateReviews(ArrayList<MovieReview> reviews) {
         mAdapter.updateDataSet(reviews);
-        reviewsPages.setText("Pages: " + String.valueOf(mReviewsPresenter.getPages()));
+        if(reviews.size() > 0) reviewsTitle.setVisibility(View.VISIBLE);
     }
 
     @Override

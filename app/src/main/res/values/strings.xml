@@ -10,6 +10,7 @@
     <string name="action_settings">Settings</string>
     <string name="sort_popular">Popular movies</string>
     <string name="sort_top_rated">Top rated movies</string>
+    <string name="sort_favorites">Favorites</string>
 
     <string name="images_base_path">http://image.tmdb.org/t/p/w</string>
     <string name="youtube_activity">vnd.youtube</string>
@@ -30,5 +31,6 @@
     <string name="reviews_by">A review by</string>
 
     <string name="error_no_connection">You are offline, please check your connection.</string>
+    <string name="error_database_update">Oops! Unable to update local database</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package io.github.anvell.popularmovies.ui.activity;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -73,9 +74,18 @@ public class MainActivity extends MvpAppCompatActivity
 
         configureMovieGrid();
 
+        if(savedInstanceState == null)
+            mMainPresenter.fetchLocalMovieData(getContentResolver());
+
         if(savedInstanceState == null || mMainPresenter.getMovieData().isEmpty()) {
             mMainPresenter.fetchMovieData();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        mMainPresenter.fetchLocalMovieData(getContentResolver());
+        super.onResume();
     }
 
     @Override
@@ -145,6 +155,9 @@ public class MainActivity extends MvpAppCompatActivity
             case R.id.nav_top_rated:
                 strId = R.string.sort_top_rated;
                 break;
+            case R.id.nav_favorite:
+                strId = R.string.sort_favorites;
+                break;
             default:
                 strId = R.string.sort_popular;
                 break;
@@ -153,12 +166,15 @@ public class MainActivity extends MvpAppCompatActivity
     }
 
     private void openDetailsActivity(int position) {
-        Intent intent = new Intent(this, DetailsActivity.class);
-        intent.putExtra(getString(R.string.intent_movie_id),
-                        mMainPresenter.getMovieData().get(position).id);
-        intent.putExtra(getString(R.string.intent_movie_title),
-                mMainPresenter.getMovieData().get(position).title);
-        startActivity(intent);
+        int len = mMainPresenter.getMovieData().size();
+        if(len > 0 && position < len) {
+            Intent intent = new Intent(this, DetailsActivity.class);
+            intent.putExtra(getString(R.string.intent_movie_id),
+                    mMainPresenter.getMovieData().get(position).id);
+            intent.putExtra(getString(R.string.intent_movie_title),
+                    mMainPresenter.getMovieData().get(position).title);
+            startActivity(intent);
+        }
     }
 
     private void configureMovieGrid() {

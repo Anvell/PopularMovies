@@ -10,6 +10,12 @@ public interface DetailsView extends MvpView {
     @StateStrategyType(OneExecutionStateStrategy.class)
     void updateDetails(MovieDetails movieDetails);
 
+    @StateStrategyType(OneExecutionStateStrategy.class)
+    void toggleFavourite(boolean favourite);
+
+    @StateStrategyType(OneExecutionStateStrategy.class)
+    void showMessage(int message);
+
     void showProgress();
     void hideProgress();
 }

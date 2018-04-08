@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.arellomobile.mvp.MvpAppCompatActivity;
 import com.arellomobile.mvp.presenter.InjectPresenter;
@@ -69,10 +70,19 @@ public class DetailsActivity extends MvpAppCompatActivity implements DetailsView
         if(movieTitle != null)
             detailsTitle.setText(movieTitle);
 
-        if(savedInstanceState == null && !mDetailsPresenter.isLoadingData())
-            mDetailsPresenter.fetchMovieDetails(movieId);
+        if(savedInstanceState == null) {
+            if (!mDetailsPresenter.isLoadingData())
+                mDetailsPresenter.fetchMovieDetails(getContentResolver(), movieId);
+        } else
+            updateDetails(mDetailsPresenter.getMovieDetails());
 
         createReviewsFragment(movieId);
+    }
+
+    @Override
+    protected void onDestroy() {
+        mDetailsPresenter.dispose();
+        super.onDestroy();
     }
 
     @Override
@@ -102,6 +112,25 @@ public class DetailsActivity extends MvpAppCompatActivity implements DetailsView
             configureVideosList(movieDetails.videos.results);
             revealViews(videosView);
         }
+
+        toggleFavourite(movieDetails.isFavourite);
+    }
+
+    @Override
+    public void toggleFavourite(boolean favourite) {
+        if(favourite) {
+            favouriteToggle.setImageResource(R.mipmap.ic_favourite);
+            favouriteToggle.setAlpha(1.0f);
+        } else {
+            favouriteToggle.setImageResource(R.mipmap.ic_favourite_outline);
+            favouriteToggle.setAlpha(0.3f);
+        }
+    }
+
+    @Override
+    public void showMessage(int message) {
+        Toast t = Toast.makeText(this, message, Toast.LENGTH_LONG);
+        t.show();
     }
 
     @Override
@@ -186,14 +215,6 @@ public class DetailsActivity extends MvpAppCompatActivity implements DetailsView
     }
 
     public void OnFavouriteSelected(View view) {
-        if(!mDetailsPresenter.getMovieDetails().isFavourite) {
-            favouriteToggle.setImageResource(R.mipmap.ic_favourite);
-            favouriteToggle.setAlpha(1.0f);
-            mDetailsPresenter.getMovieDetails().isFavourite = true;
-        } else {
-            favouriteToggle.setImageResource(R.mipmap.ic_favourite_outline);
-            favouriteToggle.setAlpha(0.3f);
-            mDetailsPresenter.getMovieDetails().isFavourite = false;
-        }
+        mDetailsPresenter.markAs(!mDetailsPresenter.getMovieDetails().isFavourite, getContentResolver());
     }
 }
