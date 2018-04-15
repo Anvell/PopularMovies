@@ -10,5 +10,6 @@
     <dimen name="app_bar_layout_height">300dp</dimen>
     <dimen name="horizontal_progress_bar_height">12dp</dimen>
     <dimen name="image_view_min_height">100dp</dimen>
+    <dimen name="ic_poster">32dp</dimen>
 
 </resources>

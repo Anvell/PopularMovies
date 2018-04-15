@@ -20,9 +20,9 @@ import io.github.anvell.popularmovies.web.MovieVideo;
 
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder>{
 
-    public static final String DEFAULT_SITE = "YouTube";
+    private static final String DEFAULT_SITE = "YouTube";
 
-    private ArrayList<MovieVideo> mVideoItems;
+    private final ArrayList<MovieVideo> mVideoItems;
     private Context mContext;
     private VideoAdapter.OnItemClickListener mListener;
 

@@ -2,20 +2,20 @@ package io.github.anvell.popularmovies.presentation.presenter;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
-import android.os.Handler;
 import android.util.SparseArray;
 
 import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Stack;
 
 import io.github.anvell.popularmovies.R;
 import io.github.anvell.popularmovies.database.MoviesProviderClient;
 import io.github.anvell.popularmovies.models.MovieDataSource;
 import io.github.anvell.popularmovies.presentation.view.MainView;
 import io.github.anvell.popularmovies.presentation.view.NotificationIndicators;
+import io.github.anvell.popularmovies.utils.LoadingData;
 import io.github.anvell.popularmovies.web.MovieDetails;
 import io.github.anvell.popularmovies.web.MovieItem;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -23,14 +23,16 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
 @InjectViewState
-public class MainPresenter extends MvpPresenter<MainView> {
+public class MainPresenter extends MvpPresenter<MainView> implements LoadingData {
 
     private final MovieDataSource mMovieDataSource;
-    private int mCurrentSortId;
-    private boolean mIsLoadingData;
-    private ArrayList<MovieItem> mData;
-    private SparseArray<MovieDetails> mLocalData;
     private int mLastPage;
+    private int mCurrentSortId;
+    private int mLastIndex = -1;
+    private boolean mIsLoadingData;
+    private final Stack<Integer> mBackStack;
+    private final ArrayList<MovieItem> mData;
+    private final SparseArray<MovieDetails> mLocalData;
     private final CompositeDisposable disposables;
 
     public MainPresenter() {
@@ -41,6 +43,7 @@ public class MainPresenter extends MvpPresenter<MainView> {
         mCurrentSortId = R.id.nav_popular;
         mIsLoadingData = false;
         disposables = new CompositeDisposable();
+        mBackStack = new Stack<>();
     }
 
     private String getSortingKey(int key) {
@@ -62,6 +65,10 @@ public class MainPresenter extends MvpPresenter<MainView> {
                 .doOnComplete(() -> {
                     if (mCurrentSortId == R.id.nav_favorite)
                         fetchMovieData(mCurrentSortId);
+                    if(mLastIndex >= 0) {
+                        getViewState().notifyDataUpdated(mLastIndex);
+                        mLastIndex = -1;
+                    }
                 })
                 .subscribe(movieDetails -> mLocalData.put(movieDetails.id, movieDetails));
     }
@@ -71,15 +78,17 @@ public class MainPresenter extends MvpPresenter<MainView> {
     }
 
     public void fetchMovieData(int sorting) {
-        mData.clear();
         mLastPage = MovieDataSource.DEFAULT_PAGE;
+        int dataSize = mData.size();
+        mData.clear();
+        getViewState().notifyDataRemoved(0, dataSize);
 
         if (sorting == R.id.nav_favorite) {
             onSortingChanged(sorting);
             for (int i = 0; i < mLocalData.size(); i++) {
                 mData.add(mLocalData.valueAt(i).toMovieItem());
             }
-            getViewState().notifyDataUpdated();
+            getViewState().notifyDataUpdated(false);
 
         } else
             fetchMovieData(sorting, mLastPage);
@@ -94,28 +103,31 @@ public class MainPresenter extends MvpPresenter<MainView> {
 
         if(mMovieDataSource.maxPages > 0 && page > mMovieDataSource.maxPages) return;
 
-        mIsLoadingData = true;
+        onLoadingData(true);
         int oldSize = mData.size();
         onSortingChanged(sorting);
 
-        mMovieDataSource.fetchMovieData(mData, getSortingKey(sorting), page, () -> {
-                if(page > mLastPage)
-                    getViewState().notifyDataUpdated(oldSize, getMovieData().size() - oldSize);
-                else
-                    getViewState().notifyDataUpdated();
-                mIsLoadingData = false;
-                mLastPage = page;
-            },
-            () -> handleNetworkError(sorting, page));
+        if(page == MovieDataSource.DEFAULT_PAGE) {
+            getViewState().showNotification(NotificationIndicators.SWIPE_REFRESH);
+        }
+
+        disposables.add(
+            mMovieDataSource.fetchMovieData(mData, getSortingKey(sorting), page, () -> {
+                    if(page > mLastPage)
+                        getViewState().notifyDataUpdated(oldSize, getMovieData().size() - oldSize);
+                    else
+                        getViewState().notifyDataUpdated(true);
+                    onLoadingData(false);
+                    mLastPage = page;
+                }, this::onNetworkError)
+        );
     }
 
-    private void handleNetworkError(int sorting, int page) {
+    private void onNetworkError() {
         if(mData.isEmpty())
             getViewState().showNotification(NotificationIndicators.NO_CONNECTION_NOTIFICATION);
         else
-            getViewState().showNotification(NotificationIndicators.LOADING_CIRCLE);
-
-        new Handler().postDelayed(() -> fetchMovieData(sorting, page), MovieDataSource.REQUEST_DELAY);
+            getViewState().showNotification(NotificationIndicators.LOADING_BAR);
     }
 
     private void onSortingChanged(int id) {
@@ -125,12 +137,38 @@ public class MainPresenter extends MvpPresenter<MainView> {
         }
     }
 
-    public boolean isLoadingData() {
-        return mIsLoadingData;
-    }
-
     public ArrayList<MovieItem> getMovieData() {
         return mData;
+    }
+
+    public SparseArray<MovieDetails> getMovieLocalData() {
+        return mLocalData;
+    }
+
+    public void dispose() {
+        disposables.clear();
+    }
+
+    public int getLastIndex() {
+        return mLastIndex;
+    }
+
+    public void setLastIndex(int index) {
+        this.mLastIndex = index;
+    }
+
+    public Stack<Integer> getBackStack() {
+        return mBackStack;
+    }
+
+    @Override
+    public void onLoadingData(boolean isLoading) {
+        mIsLoadingData = isLoading;
+    }
+
+    @Override
+    public boolean isLoadingData() {
+        return mIsLoadingData;
     }
 }
 

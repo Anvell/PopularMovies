@@ -16,7 +16,7 @@ public class MoviesProvider extends ContentProvider {
     private static final int CODE_MOVIES = 101;
 
     private MoviesDatabaseHelper mDatabaseHelper;
-    private UriMatcher mUriMatcher = buildUriMatcher();
+    private final UriMatcher mUriMatcher = buildUriMatcher();
 
     private static UriMatcher buildUriMatcher() {
 

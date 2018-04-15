@@ -70,19 +70,14 @@ public class DetailsActivity extends MvpAppCompatActivity implements DetailsView
         if(movieTitle != null)
             detailsTitle.setText(movieTitle);
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             if (!mDetailsPresenter.isLoadingData())
                 mDetailsPresenter.fetchMovieDetails(getContentResolver(), movieId);
-        } else
-            updateDetails(mDetailsPresenter.getMovieDetails());
-
-        createReviewsFragment(movieId);
-    }
-
-    @Override
-    protected void onDestroy() {
-        mDetailsPresenter.dispose();
-        super.onDestroy();
+            createReviewsFragment(movieId);
+        } else {
+            if(!mDetailsPresenter.isLoadingData())
+                updateDetails(mDetailsPresenter.getMovieDetails());
+        }
     }
 
     @Override
@@ -97,8 +92,8 @@ public class DetailsActivity extends MvpAppCompatActivity implements DetailsView
         if(movieDetails.backdropPath != null) {
             updatePoster(movieDetails.backdropPath);
         } else
-            if(movieDetails.posterPath != null && movieDetails.posterPath instanceof String) {
-            updatePoster((String) movieDetails.posterPath);
+            if(movieDetails.posterPath != null) {
+            updatePoster(movieDetails.posterPath);
         }
 
         if(movieDetails.voteAverage > 0)
@@ -108,7 +103,7 @@ public class DetailsActivity extends MvpAppCompatActivity implements DetailsView
         detailsOverviewBody.setText(movieDetails.overview);
         detailsGenresBody.setText(joinGenres(movieDetails.genres));
 
-        if(movieDetails.videos.results != null) {
+        if(movieDetails.videos.results != null && movieDetails.videos.results.size() > 0) {
             configureVideosList(movieDetails.videos.results);
             revealViews(videosView);
         }

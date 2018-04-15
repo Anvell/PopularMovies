@@ -1,6 +1,5 @@
 package io.github.anvell.popularmovies.ui.activity;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -47,7 +46,7 @@ public class MainActivity extends MvpAppCompatActivity
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
     @BindView(R.id.nav_view) NavigationView navigationView;
     @BindView(R.id.movie_grid) RecyclerView movieGridView;
-    @BindView(R.id.pg_loading_movies) ProgressBar loadingCircle;
+    @BindView(R.id.pg_loading_movies) ProgressBar loadingBar;
     @BindView(R.id.tv_no_connection) TextView errorNoConnectionText;
 
     @Override
@@ -66,16 +65,19 @@ public class MainActivity extends MvpAppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         swipeLoader.setOnRefreshListener(() -> {
-            if(!mMainPresenter.isLoadingData())
+            if(!mMainPresenter.isLoadingData()) {
                 mMainPresenter.fetchMovieData();
-            else
+            } else
                 swipeLoader.setRefreshing(false);
         });
 
-        configureMovieGrid();
+        onInitializeMovieGrid();
 
-        if(savedInstanceState == null)
+        if(savedInstanceState == null) {
             mMainPresenter.fetchLocalMovieData(getContentResolver());
+        } else {
+            onSortingChanged(mMainPresenter.getCurrentSortId());
+        }
 
         if(savedInstanceState == null || mMainPresenter.getMovieData().isEmpty()) {
             mMainPresenter.fetchMovieData();
@@ -84,7 +86,9 @@ public class MainActivity extends MvpAppCompatActivity
 
     @Override
     protected void onResume() {
-        mMainPresenter.fetchLocalMovieData(getContentResolver());
+        if(mMainPresenter.getLastIndex() != RecyclerView.NO_POSITION) {
+            mMainPresenter.fetchLocalMovieData(getContentResolver());
+        }
         super.onResume();
     }
 
@@ -93,7 +97,15 @@ public class MainActivity extends MvpAppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            if(mMainPresenter.getBackStack().empty()) {
+                super.onBackPressed();
+            } else {
+                Integer id = mMainPresenter.getBackStack().pop();
+                if(id != mMainPresenter.getCurrentSortId()) {
+                    mMainPresenter.dispose();
+                    mMainPresenter.fetchMovieData(id);
+                }
+            }
         }
     }
 
@@ -112,8 +124,11 @@ public class MainActivity extends MvpAppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         drawer.closeDrawer(GravityCompat.START);
-        if(id != mMainPresenter.getCurrentSortId() && !mMainPresenter.isLoadingData())
+        if(id != mMainPresenter.getCurrentSortId()) {
+            mMainPresenter.dispose();
+            mMainPresenter.getBackStack().push(mMainPresenter.getCurrentSortId());
             mMainPresenter.fetchMovieData(id);
+        }
         return true;
     }
 
@@ -129,23 +144,37 @@ public class MainActivity extends MvpAppCompatActivity
                 == NotificationIndicators.NO_CONNECTION_NOTIFICATION)
             errorNoConnectionText.setVisibility(View.VISIBLE);
 
-        if((indicator & NotificationIndicators.LOADING_CIRCLE)
-                == NotificationIndicators.LOADING_CIRCLE)
-            loadingCircle.setVisibility(View.VISIBLE);
+        if((indicator & NotificationIndicators.LOADING_BAR)
+                == NotificationIndicators.LOADING_BAR)
+            loadingBar.setVisibility(View.VISIBLE);
+
+        if((indicator & NotificationIndicators.SWIPE_REFRESH)
+                == NotificationIndicators.SWIPE_REFRESH)
+            swipeLoader.setRefreshing(true);
     }
 
     @Override
-    public void notifyDataUpdated() {
-        loadingCircle.setVisibility(View.GONE);
+    public void notifyDataUpdated(boolean showFavorites) {
+        loadingBar.setVisibility(View.GONE);
         errorNoConnectionText.setVisibility(View.GONE);
         swipeLoader.setRefreshing(false);
-        mAdapter.notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged(showFavorites);
     }
 
     @Override
-    public void notifyDataUpdated(int insertPosition, int length) {
-        loadingCircle.setVisibility(View.GONE);
-        mAdapter.notifyItemRangeInserted(insertPosition, length);
+    public void notifyDataUpdated(int position) {
+        mAdapter.notifyItemChanged(position);
+    }
+
+    @Override
+    public void notifyDataUpdated(int position, int length) {
+        loadingBar.setVisibility(View.GONE);
+        mAdapter.notifyItemRangeInserted(position, length);
+    }
+
+    @Override
+    public void notifyDataRemoved(int position, int length) {
+        mAdapter.notifyItemRangeRemoved(position, length);
     }
 
     @Override
@@ -166,18 +195,17 @@ public class MainActivity extends MvpAppCompatActivity
     }
 
     private void openDetailsActivity(int position) {
-        int len = mMainPresenter.getMovieData().size();
-        if(len > 0 && position < len) {
-            Intent intent = new Intent(this, DetailsActivity.class);
-            intent.putExtra(getString(R.string.intent_movie_id),
-                    mMainPresenter.getMovieData().get(position).id);
-            intent.putExtra(getString(R.string.intent_movie_title),
-                    mMainPresenter.getMovieData().get(position).title);
-            startActivity(intent);
-        }
+        mMainPresenter.setLastIndex(position);
+
+        Intent intent = new Intent(this, DetailsActivity.class);
+        intent.putExtra(getString(R.string.intent_movie_id),
+                mMainPresenter.getMovieData().get(position).id);
+        intent.putExtra(getString(R.string.intent_movie_title),
+                mMainPresenter.getMovieData().get(position).title);
+        startActivity(intent);
     }
 
-    private void configureMovieGrid() {
+    private void onInitializeMovieGrid() {
         DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
         float widthDip = displayMetrics.widthPixels / displayMetrics.density;
         float imageWidthDip = getResources().getInteger(R.integer.poster_width) / displayMetrics.density;
@@ -189,7 +217,8 @@ public class MainActivity extends MvpAppCompatActivity
             ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
         }
 
-        mAdapter = new MovieAdapter(mMainPresenter.getMovieData());
+        mAdapter = new MovieAdapter(mMainPresenter.getMovieData(), mMainPresenter.getMovieLocalData(),
+                                   (mMainPresenter.getCurrentSortId() != R.id.nav_favorite));
         mAdapter.setOnItemClickListener((view, position) -> openDetailsActivity(position));
         movieGridView.setAdapter(mAdapter);
 

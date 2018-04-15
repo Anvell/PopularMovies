@@ -2,9 +2,7 @@ package io.github.anvell.popularmovies.presentation.presenter;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
-import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
@@ -15,16 +13,14 @@ import io.github.anvell.popularmovies.R;
 import io.github.anvell.popularmovies.database.MoviesProviderClient;
 import io.github.anvell.popularmovies.models.MovieDataSource;
 import io.github.anvell.popularmovies.presentation.view.DetailsView;
+import io.github.anvell.popularmovies.utils.LoadingData;
 import io.github.anvell.popularmovies.web.MovieDetails;
-import io.reactivex.Scheduler;
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 @InjectViewState
-public class DetailsPresenter extends MvpPresenter<DetailsView> {
+public class DetailsPresenter extends MvpPresenter<DetailsView> implements LoadingData {
 
     private final MovieDataSource mMovieDataSource;
     private final AtomicReference<MovieDetails> mMovieDetails;
@@ -36,10 +32,6 @@ public class DetailsPresenter extends MvpPresenter<DetailsView> {
         mMovieDetails = new AtomicReference<>(new MovieDetails());
         mIsLoadingData = false;
         disposables = new CompositeDisposable();
-    }
-
-    public void dispose() {
-        disposables.clear();
     }
 
     @SuppressLint("CheckResult")
@@ -70,14 +62,10 @@ public class DetailsPresenter extends MvpPresenter<DetailsView> {
     }
 
     public void fetchMovieDetails(@NonNull ContentResolver resolver, int movieId) {
-        mIsLoadingData = true;
+        onLoadingData(true);
         getViewState().showProgress();
         disposables.add(mMovieDataSource.fetchMovieDetailsData(mMovieDetails,
                                         resolver, movieId, this::updateView));
-    }
-
-    public boolean isLoadingData() {
-        return mIsLoadingData;
     }
 
     public MovieDetails getMovieDetails() {
@@ -89,7 +77,21 @@ public class DetailsPresenter extends MvpPresenter<DetailsView> {
             getViewState().updateDetails(mMovieDetails.get());
             getViewState().toggleFavourite(getMovieDetails().isFavourite);
         }
-        mIsLoadingData = false;
+        onLoadingData(false);
         getViewState().hideProgress();
+    }
+
+    public void dispose() {
+        disposables.clear();
+    }
+
+    @Override
+    public void onLoadingData(boolean isLoading) {
+        mIsLoadingData = isLoading;
+    }
+
+    @Override
+    public boolean isLoadingData() {
+        return mIsLoadingData;
     }
 }

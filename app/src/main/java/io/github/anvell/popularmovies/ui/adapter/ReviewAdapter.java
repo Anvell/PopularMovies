@@ -1,14 +1,11 @@
 package io.github.anvell.popularmovies.ui.adapter;
 
 import android.support.annotation.NonNull;
-import android.support.transition.Slide;
-import android.support.transition.TransitionManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -18,8 +15,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.anvell.popularmovies.R;
 import io.github.anvell.popularmovies.web.MovieReview;
-
-import static android.support.transition.Fade.IN;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder> {
 

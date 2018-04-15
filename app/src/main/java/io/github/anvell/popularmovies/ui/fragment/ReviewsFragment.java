@@ -1,6 +1,5 @@
 package io.github.anvell.popularmovies.ui.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -57,35 +56,15 @@ public class ReviewsFragment extends MvpFragment implements ReviewsView {
         reviewsListView.setAdapter(mAdapter);
         reviewsListView.setNestedScrollingEnabled(false);
 
-        if(mMovieId != 0) mReviewsPresenter.fetchMovieReviews(mMovieId, ReviewsPresenter.ReviewsDirection.CURRENT);
+        if(mMovieId != 0 && savedInstanceState == null)
+            mReviewsPresenter.fetchMovieReviews(mMovieId, ReviewsPresenter.ReviewsDirection.CURRENT);
 
         return view;
-    }
-
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
     @Override
     public void updateReviews(ArrayList<MovieReview> reviews) {
         mAdapter.updateDataSet(reviews);
         if(reviews.size() > 0) reviewsTitle.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void showProgress() {
-
-    }
-
-    @Override
-    public void hideProgress() {
-
     }
 }

@@ -7,11 +7,9 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import io.reactivex.Observable;
 
 import io.github.anvell.popularmovies.web.MovieDetails;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 
 public class MoviesProviderClient {
